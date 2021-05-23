@@ -1,4 +1,5 @@
 % Hash.m
+% # [MessageDigest (Java SE 16 & JDK 16)](https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/security/MessageDigest.html#reset())
 classdef Hash < handle
 
     properties % 公有属性
@@ -8,7 +9,7 @@ classdef Hash < handle
         algorithm = []; % 算法名称
         instance = []; % java.security.MessageDigest.getInstance 返回的实例
         output = []; % hash函数输出结果
-        output_len = []; % hash 函数输出长度
+        length = []; % hash 函数输出长度
     end
 
     properties (Dependent = true) % 调用时实时计算的属性
@@ -33,13 +34,21 @@ classdef Hash < handle
             p = inputParser; % 函数的输入解析器
 
             % 必需的由位置确定的位置参数
+            % 参考: [Java Security Standard Algorithm Names](https://docs.oracle.com/en/java/javase/16/docs/specs/security/standard-names.html#mac-algorithms)
             p.addRequired('algorithm', @(A) ischar(A) && any(validatestring(A, {...
                                                                     'MD2', ...
                                                                     'MD5', ...
                                                                     'SHA-1', ...
+                                                                    'SHA-224', ...
                                                                     'SHA-256', ...
                                                                     'SHA-384', ...
-                                                                    'SHA-512', ...
+                                                                    'SHA-512' ...
+                                                                    % 'SHA-512/224', ...
+                                                                    % 'SHA-512/256', ...
+                                                                    % 'SHA3-224', ...
+                                                                    % 'SHA3-256', ...
+                                                                    % 'SHA3-384', ...
+                                                                    % 'SHA3-512', ...
                                                                     })));
 
             p.parse(algorithm, varargin{:}); % 解析参数
@@ -47,25 +56,7 @@ classdef Hash < handle
             self.algorithm = p.Results.algorithm;
             self.instance = java.security.MessageDigest.getInstance(p.Results.algorithm);
 
-            switch p.Results.algorithm
-                case 'MD2'
-                    self.output_len = 16;
-
-                case 'MD5'
-                    self.output_len = 16;
-
-                case 'SHA-1'
-                    self.output_len = 20;
-
-                case 'SHA-256'
-                    self.output_len = 32;
-
-                case 'SHA-384'
-                    self.output_len = 48;
-
-                case 'SHA-512'
-                    self.output_len = 64;
-            end
+            self.length = self.instance.getDigestLength();
 
         end
 
@@ -97,7 +88,7 @@ classdef Hash < handle
                     outputByte = typecast(self.output, 'uint8');
                     outputStr = sprintf('%02X', outputByte);
                 otherwise
-                    outputByte = zeros(self.output_len, nargin - 1, 'uint8');
+                    outputByte = zeros(self.length, nargin - 1, 'uint8');
                     outputStr = strings(1, nargin - 1);
 
                     for index = 1:(nargin - 1)
@@ -108,6 +99,11 @@ classdef Hash < handle
 
             end
 
+        end
+
+        % 重置
+        function reset(self, varargin)
+            self.instance.reset();
         end
 
     end

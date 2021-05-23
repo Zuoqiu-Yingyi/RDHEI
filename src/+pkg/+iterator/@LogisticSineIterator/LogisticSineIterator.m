@@ -18,7 +18,7 @@ classdef LogisticSineIterator < pkg.iterator.Iterator
         function self = LogisticSineIterator(x, varargin)
             % LogisticSineIterator - 构造函数
             %
-            % Syntax: self = LogisticSineIterator(x, 'r', 0.5, 'u', 0.5, 'k', 18, 'N', 50);
+            % Syntax: self = pkg.iterator.LogisticSineIterator(x, 'r', 0.5, 'u', 0.5, 'k', 18, 'N', 50);
             % @param x double 迭代器初值 (位置参数-必要)
             % @param r double 控制参数 (名称-值对组参数-可选)
             % @param u double 控制参数 (名称-值对组参数-可选)
